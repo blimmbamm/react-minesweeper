@@ -28,10 +28,7 @@ const MinesweeperField = ({
 
   //   const [actionsModalVisible, setActionsModalVisible] = useState(false);
   const [actionsModalPosition, setActionisModalPosition] = useState(null);
-
-  //   const [fieldHighlightingBoxPosition, setFieldHighlightingBoxPosition] =
-  //     useState(null);
-
+  
   const [markedAsBomb, setMarkedAsBomb] = useState(false);
 
   let classNames;
