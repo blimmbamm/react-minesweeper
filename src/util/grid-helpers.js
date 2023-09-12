@@ -40,6 +40,8 @@ function generateGrid(sizeX, sizeY) {
           j
         ),
         isDigged: false,
+        isCorrectlyDigged: false,
+        isWronglyDigged: false,
         actionsOverlayVisible: false,
       };
     }
@@ -142,7 +144,7 @@ function digField(fieldsGrid, x, y) {
   // } 
   
   // Also clear neighbors if no bomb in neighborhood:
-  if (!fieldsGrid[x][y].numberOfBombsInNeighborhood) {
+  if (!fieldsGrid[x][y].numberOfBombsInNeighborhood & !fieldsGrid[x][y].isBomb) {
     for (let i = 0; i < fieldsGrid.length; i++) {
       for (let j = 0; j < fieldsGrid[0].length; j++) {
         if (areNeighbors({ x, y }, { i, j }) & !fieldsGrid[i][j].isDigged) {

@@ -36,3 +36,35 @@
     transform: rotate(360deg);
   }
 }
+
+.text-color-1 {
+  color: blue;
+}
+
+.text-color-2 {
+  color: green;
+}
+
+.text-color-3 {
+  color: red;
+}
+
+.text-color-4 {
+  color: purple;
+}
+
+.text-color-5  {
+  color: maroon;
+}
+
+.text-color-6 {
+  color: turquoise;
+}
+
+.text-color-7 {
+  color: black;
+}
+
+.text-color-8 {
+  color: gray;
+}

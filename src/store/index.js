@@ -1,6 +1,6 @@
 import { createSlice, configureStore } from "@reduxjs/toolkit";
 
-import { generateGrid, areNeighbors, digField } from "../util/grid-helpers";
+import { generateGrid, digField } from "../util/grid-helpers";
 
 const initialFieldsGridState = { fieldsGrid: generateGrid(10, 10) };
 
@@ -14,23 +14,14 @@ const fieldsGridSlice = createSlice({
     //   // probably clearField must return updated fieldsGrid..
     // },
     digField(state, action) {
+
       // Set field to digged:
       digField(state.fieldsGrid, action.payload.x, action.payload.y);
-      // console.log("digged field (x:" + action.payload.x + ", y:" + action.payload.y + ")" );
-      // state.fieldsGrid[action.payload.x][action.payload.y].isDigged = true;
 
-      // // If no bomb in neighborhood, then also dig all neighbors:
-      // if (!state.fieldsGrid[action.payload.x][action.payload.y].numberOfBombsInNeighborhood) {
-      //   for (let i = 0; i < state.fieldsGrid.length; i++) {
-      //     for (let j = 0; j < state.fieldsGrid[0].length; j++) {
-      //       if (areNeighbors({ x: action.payload.x, y: action.payload.y }, { i, j }) & !state.fieldsGrid[i][j].isDigged) {
-      //         state.fieldsGrid[i][j].isDigged = true;
-      //         // clearField(fieldsGrid, i, j);
-      //       }
-      //     }
-      //   }    
-      // }
     },
+    // setFieldWronlgyDigged(state, action) {
+    //   state.fieldsGrid[action.payload.x][action.payload.y].isWronglyDigged = true;
+    // },
     showActionsOverlay(state, action) {
       if (!state.fieldsGrid[action.payload.x][action.payload.y].isDigged) {
         state.fieldsGrid[action.payload.x][

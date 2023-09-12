@@ -5,22 +5,20 @@ import { fieldsGridActions } from "../store";
 import shovel from "../images/shovel.png";
 import flag from "../images/flag.png";
 import close from "../images/close.png";
+import bomb from "../images/bomb.png";
 
-const MinesweeperField = ({
-  x,
-  y,
-  isBomb,
-  numberOfBombsInNeighborhood,
-  onReveal,
-}) => {
+const MinesweeperField = ({ x, y }) => {
   const fieldRef = useRef();
 
   const dispatch = useDispatch();
 
   const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
 
-  // const isRevealed = fieldsGrid[x][y].isRevealed;
+  const numberOfBombsInNeighborhood = fieldsGrid[x][y].numberOfBombsInNeighborhood;
+  const isBomb = fieldsGrid[x][y].isBomb;
   const isDigged = fieldsGrid[x][y].isDigged;
+  // const isCorrectlyDigged = fieldsGrid[x][y].isCorrectlyDigged;
+  // const isWronglyDigged = fieldsGrid[x][y].isWronglyDigged;
 
   const actionsModalVisible = useSelector(
     (state) => state.fieldsGrid.fieldsGrid[x][y].actionsOverlayVisible
@@ -28,8 +26,10 @@ const MinesweeperField = ({
 
   //   const [actionsModalVisible, setActionsModalVisible] = useState(false);
   const [actionsModalPosition, setActionisModalPosition] = useState(null);
-  
+
   const [markedAsBomb, setMarkedAsBomb] = useState(false);
+
+  // const [isWronglyDigged, setIsWronglyDigged] = useState(false);
 
   let classNames;
   if (actionsModalVisible) {
@@ -71,12 +71,14 @@ const MinesweeperField = ({
   }
 
   function digFieldHandler() {
-    if (isBomb) {
-      console.log("start game over logic here");
-    } else {
-      // dispatch(fieldsGridActions.revealField({ x, y }));
-      dispatch(fieldsGridActions.digField({x, y}));
-    }
+    dispatch(fieldsGridActions.digField({ x, y }));
+    // if (isBomb) {
+    //   console.log("start game over logic here");
+    //   dispatch(fieldsGridActions.setFieldWronlgyDigged({x, y}));      
+    // } else {
+      
+    //   dispatch(fieldsGridActions.digField({ x, y }));
+    // }
     dispatch(fieldsGridActions.hideActionsOverlay({ x, y }));
   }
 
@@ -86,18 +88,48 @@ const MinesweeperField = ({
         ref={fieldRef}
         className={classNames}
         onClick={toggleFieldActionsHandler}
+        style={{
+          userSelect: "none",
+          alignItems: "center",
+          display: "flex",
+          justifyContent: "center",
+          fontWeight: "bold",
+        }}
       >
-        {isDigged && numberOfBombsInNeighborhood}
+        {(isDigged & !isBomb) && (
+          <div
+            className={
+              numberOfBombsInNeighborhood
+                ? `text-color-${numberOfBombsInNeighborhood}`
+                : ""
+            }
+          >
+            {numberOfBombsInNeighborhood}
+          </div>
+        )}
+        {(isDigged & isBomb) && (
+          <img
+            src={bomb}
+            alt="bomb"
+            width="20px"
+            height="20px"
+          />
+        )}
         {markedAsBomb && (
           <img
             src={flag}
             width="20px"
             height="20px"
-            alt="flag"
-            style={{ marginLeft: "5px", marginTop: "5px" }}
+            alt="flag"  
           />
         )}
+        
       </div>
+
+
+
+
+        {/* Actions menu */}
 
       {actionsModalVisible && (
         <>
@@ -120,21 +152,21 @@ const MinesweeperField = ({
               width="16px"
               height="16px"
               alt="shovel"
-            ></img>
+            />
             <img
               src={flag}
               onClick={setFlaggedHandler}
               width="16px"
               height="16px"
               alt="flag"
-            ></img>
+            />
             <img
               src={close}
               onClick={closeActionsModal}
               width="16px"
               height="16px"
               alt="close"
-            ></img>
+            />
           </div>
         </>
       )}

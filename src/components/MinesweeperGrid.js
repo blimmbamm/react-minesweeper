@@ -1,5 +1,5 @@
 import MinesweeperField from "./MinesweeperField";
-import {generateGrid, flattenGrid}  from "../util/grid-helpers";
+import {flattenGrid}  from "../util/grid-helpers";
 
 import { useSelector } from "react-redux";
 
@@ -25,8 +25,8 @@ const MinesweeperGrid = () => {
       }}
     >
       {/* {coordinates.map(({x, y}) => <p>x={x} y={y}</p>)} */}
-      {flattenedFieldsGrid.map(({ x, y, isBomb, numberOfBombsInNeighborhood }, index) => (
-        <MinesweeperField key={index} x={x} y={y} isBomb={isBomb} numberOfBombsInNeighborhood={numberOfBombsInNeighborhood}/>
+      {flattenedFieldsGrid.map(({ x, y}, index) => (
+        <MinesweeperField key={index} x={x} y={y}/>
       ))}
 
 
