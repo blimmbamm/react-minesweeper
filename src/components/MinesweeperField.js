@@ -20,7 +20,6 @@ const MinesweeperField = ({
   const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
 
   const isRevealed = fieldsGrid[x][y].isRevealed;
-  //   const [isRevealed, setIsRevealed] = useState(false);
 
   const actionsModalVisible = useSelector(
     (state) => state.fieldsGrid.fieldsGrid[x][y].actionsOverlayVisible
