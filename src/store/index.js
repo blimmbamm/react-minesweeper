@@ -13,7 +13,6 @@ const fieldsGridSlice = createSlice({
   name: "fieldsGrid",
   reducers: {
     digField(state, action) {
-
       // Set field to digged:
       digField(state.fieldsGrid, action.payload.x, action.payload.y);
     },
@@ -58,7 +57,10 @@ const fieldsGridSlice = createSlice({
     setGameWon(state) {
       for (let i = 0; i < state.fieldsGrid.length; i++) {
         for (let j = 0; j < state.fieldsGrid[0].length; j++) {
-          if(state.fieldsGrid[i][j].isBomb && !state.fieldsGrid[i][j].isFlaggedAsBomb) {
+          if (
+            state.fieldsGrid[i][j].isBomb &&
+            !state.fieldsGrid[i][j].isFlaggedAsBomb
+          ) {
             state.gameWon = false;
           }
         }
@@ -66,8 +68,11 @@ const fieldsGridSlice = createSlice({
       state.gameWon = true;
     },
     resetGame(state) {
-      state = initialFieldsGridState;
-    }
+      console.log("reset triggered");
+      state.fieldsGrid = generateGrid(5, 5);
+      state.gameOver = false;
+      state.gameWon = false;
+    },
   },
 });
 

@@ -14,6 +14,7 @@ const MinesweeperGrid = () => {
 
   const [gameWon, setGameWon] = useState(false);
 
+  // Todo: Limit number of possible flags to amount of bombs
 
 
   useEffect(() => {
@@ -27,8 +28,13 @@ const MinesweeperGrid = () => {
     dispatch(fieldsGridActions.gameOver());    
     setTimeout(() => {
       setGameWon(true);
-    }, 5000);
+    }, 1000);
   });
+
+
+  function restartGameHandler(){
+    dispatch(fieldsGridActions.resetGame());
+  }
 
   return (
     <div
@@ -45,6 +51,7 @@ const MinesweeperGrid = () => {
       {gameWon && (
         <div style={{ backgroundColor: "whitesmoke", position: "fixed" }}>
           Congrats, You won the game!
+          <button onClick={restartGameHandler}>Restart</button>
         </div>
       )}
     </div>
