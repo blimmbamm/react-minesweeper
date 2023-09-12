@@ -19,7 +19,8 @@ const MinesweeperField = ({
 
   const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
 
-  const isRevealed = fieldsGrid[x][y].isRevealed;
+  // const isRevealed = fieldsGrid[x][y].isRevealed;
+  const isDigged = fieldsGrid[x][y].isDigged;
 
   const actionsModalVisible = useSelector(
     (state) => state.fieldsGrid.fieldsGrid[x][y].actionsOverlayVisible
@@ -33,7 +34,7 @@ const MinesweeperField = ({
   let classNames;
   if (actionsModalVisible) {
     classNames = classes.field + " " + classes.highlight;
-  } else if (!isRevealed) {
+  } else if (!isDigged) {
     classNames = `${classes.field} ${
       (x + y) % 2 === 0 ? classes["dark-hidden"] : classes["light-hidden"]
     }`;
@@ -73,7 +74,8 @@ const MinesweeperField = ({
     if (isBomb) {
       console.log("start game over logic here");
     } else {
-      dispatch(fieldsGridActions.revealField({ x, y }));
+      // dispatch(fieldsGridActions.revealField({ x, y }));
+      dispatch(fieldsGridActions.digField({x, y}));
     }
     dispatch(fieldsGridActions.hideActionsOverlay({ x, y }));
   }
@@ -85,12 +87,13 @@ const MinesweeperField = ({
         className={classNames}
         onClick={toggleFieldActionsHandler}
       >
-        {isRevealed && numberOfBombsInNeighborhood}
+        {isDigged && numberOfBombsInNeighborhood}
         {markedAsBomb && (
           <img
             src={flag}
             width="20px"
             height="20px"
+            alt="flag"
             style={{ marginLeft: "5px", marginTop: "5px" }}
           />
         )}
@@ -116,18 +119,21 @@ const MinesweeperField = ({
               onClick={digFieldHandler}
               width="16px"
               height="16px"
+              alt="shovel"
             ></img>
             <img
               src={flag}
               onClick={setFlaggedHandler}
               width="16px"
               height="16px"
+              alt="flag"
             ></img>
             <img
               src={close}
               onClick={closeActionsModal}
               width="16px"
               height="16px"
+              alt="close"
             ></img>
           </div>
         </>
