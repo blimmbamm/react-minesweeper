@@ -10,9 +10,7 @@
 }
 
 
-/* .hidden {
-    background-color: rgb(172, 235, 172);
-} */
+
 
 .light-hidden {    
     background-color: rgb(172, 235, 172);
@@ -44,4 +42,9 @@
 
 .background {
     background: rgb(2, 2, 2, 0.5);
+}
+
+.error {
+    background-color: orange;
+    transition: 3s;
 }

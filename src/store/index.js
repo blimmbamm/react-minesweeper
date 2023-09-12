@@ -2,28 +2,42 @@ import { createSlice, configureStore } from "@reduxjs/toolkit";
 
 import { generateGrid, digField } from "../util/grid-helpers";
 
-const initialFieldsGridState = { fieldsGrid: generateGrid(10, 10) };
+const initialFieldsGridState = {
+  fieldsGrid: generateGrid(5, 5),
+  gameOver: false,
+  gameWon: false,
+};
 
 const fieldsGridSlice = createSlice({
   initialState: initialFieldsGridState,
   name: "fieldsGrid",
   reducers: {
-    // revealField(state, action) {
-    //   clearField(state.fieldsGrid, action.payload.x, action.payload.y);
-    //   // put clear field logic (= setting isRevealed = true) here
-    //   // probably clearField must return updated fieldsGrid..
-    // },
     digField(state, action) {
 
       // Set field to digged:
       digField(state.fieldsGrid, action.payload.x, action.payload.y);
-
     },
-    // setFieldWronlgyDigged(state, action) {
-    //   state.fieldsGrid[action.payload.x][action.payload.y].isWronglyDigged = true;
-    // },
+    gameOver(state) {
+      state.gameOver = true;
+    },
+    digAllBombFields(state) {
+      for (let i = 0; i < state.fieldsGrid.length; i++) {
+        for (let j = 0; j < state.fieldsGrid[0].length; j++) {
+          if (state.fieldsGrid[i][j].isBomb) {
+            state.fieldsGrid[i][j].isDigged = true;
+          }
+        }
+      }
+    },
+    toggleflaggedAsBomb(state, action) {
+      state.fieldsGrid[action.payload.x][action.payload.y].isFlaggedAsBomb =
+        !state.fieldsGrid[action.payload.x][action.payload.y].isFlaggedAsBomb;
+    },
     showActionsOverlay(state, action) {
-      if (!state.fieldsGrid[action.payload.x][action.payload.y].isDigged) {
+      if (
+        !state.fieldsGrid[action.payload.x][action.payload.y].isDigged &
+        !state.gameOver
+      ) {
         state.fieldsGrid[action.payload.x][
           action.payload.y
         ].actionsOverlayVisible = true;
@@ -41,6 +55,19 @@ const fieldsGridSlice = createSlice({
         }
       }
     },
+    setGameWon(state) {
+      for (let i = 0; i < state.fieldsGrid.length; i++) {
+        for (let j = 0; j < state.fieldsGrid[0].length; j++) {
+          if(state.fieldsGrid[i][j].isBomb && !state.fieldsGrid[i][j].isFlaggedAsBomb) {
+            state.gameWon = false;
+          }
+        }
+      }
+      state.gameWon = true;
+    },
+    resetGame(state) {
+      state = initialFieldsGridState;
+    }
   },
 });
 

@@ -1,35 +1,52 @@
 import MinesweeperField from "./MinesweeperField";
-import {flattenGrid}  from "../util/grid-helpers";
+import { flattenGrid } from "../util/grid-helpers";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { fieldsGridActions } from "../store";
 
-const MinesweeperGrid = () => { 
+const MinesweeperGrid = () => {
 
-    const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid)
-  
-    // const fieldsGrid = generateGrid(5, 10);
-    const flattenedFieldsGrid = flattenGrid(fieldsGrid);
+  const dispatch = useDispatch();
+  const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
 
-    // function clearFieldHandler(x, y) {
-    //     clearField(fieldsGrid, x, y);
-    // }
+  const flattenedFieldsGrid = flattenGrid(fieldsGrid);
+
+  const [gameWon, setGameWon] = useState(false);
+
+
+
+  useEffect(() => {
+    for (let i = 0; i < fieldsGrid.length; i++) {
+      for (let j = 0; j < fieldsGrid[0].length; j++) {
+        if(fieldsGrid[i][j].isBomb && !fieldsGrid[i][j].isFlaggedAsBomb) {
+          return;
+        }
+      }
+    }
+    dispatch(fieldsGridActions.gameOver());    
+    setTimeout(() => {
+      setGameWon(true);
+    }, 5000);
+  });
 
   return (
     <div
       style={{
-        // position: "relative",
         display: "grid",
         gridTemplateColumns: `repeat(${fieldsGrid.length}, 1fr)`,
         width: "fit-content",
         margin: "auto",
       }}
     >
-      {/* {coordinates.map(({x, y}) => <p>x={x} y={y}</p>)} */}
-      {flattenedFieldsGrid.map(({ x, y}, index) => (
-        <MinesweeperField key={index} x={x} y={y}/>
+      {flattenedFieldsGrid.map(({ x, y }, index) => (
+        <MinesweeperField key={index} x={x} y={y} />
       ))}
-
-
+      {gameWon && (
+        <div style={{ backgroundColor: "whitesmoke", position: "fixed" }}>
+          Congrats, You won the game!
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import classes from "./MinesweeperField.module.css";
+import './MinesweeperField.css';
 import { useSelector, useDispatch } from "react-redux";
 import { fieldsGridActions } from "../store";
 import shovel from "../images/shovel.png";
@@ -14,35 +14,47 @@ const MinesweeperField = ({ x, y }) => {
 
   const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
 
-  const numberOfBombsInNeighborhood = fieldsGrid[x][y].numberOfBombsInNeighborhood;
+  const numberOfBombsInNeighborhood =
+    fieldsGrid[x][y].numberOfBombsInNeighborhood;
   const isBomb = fieldsGrid[x][y].isBomb;
   const isDigged = fieldsGrid[x][y].isDigged;
-  // const isCorrectlyDigged = fieldsGrid[x][y].isCorrectlyDigged;
-  // const isWronglyDigged = fieldsGrid[x][y].isWronglyDigged;
+  const isFlaggedAsBomb = fieldsGrid[x][y].isFlaggedAsBomb;
+  const gameOver = useSelector((state) => state.fieldsGrid.gameOver);
 
   const actionsModalVisible = useSelector(
     (state) => state.fieldsGrid.fieldsGrid[x][y].actionsOverlayVisible
   );
 
-  //   const [actionsModalVisible, setActionsModalVisible] = useState(false);
   const [actionsModalPosition, setActionisModalPosition] = useState(null);
-
-  const [markedAsBomb, setMarkedAsBomb] = useState(false);
-
-  // const [isWronglyDigged, setIsWronglyDigged] = useState(false);
 
   let classNames;
   if (actionsModalVisible) {
-    classNames = classes.field + " " + classes.highlight;
+    classNames = "field highlight";
   } else if (!isDigged) {
-    classNames = `${classes.field} ${
-      (x + y) % 2 === 0 ? classes["dark-hidden"] : classes["light-hidden"]
-    }`;
+    classNames = `field ${(x + y) % 2 === 0 ? "dark-hidden" : "light-hidden"}`;
   } else {
-    classNames = `${classes.field} ${
-      (x + y) % 2 === 0 ? classes["dark-cleared"] : classes["light-cleared"]
+    classNames = `field ${
+      (x + y) % 2 === 0 ? "dark-cleared" : "light-cleared"
     }`;
   }
+
+  const [falselyFlagged, setFalselyFlagged] = useState(false);
+
+  if(falselyFlagged) {
+    classNames = "field error";
+  }
+
+  useEffect(() => {
+    if(gameOver && isFlaggedAsBomb && !isBomb) {
+      setFalselyFlagged(true);
+      setTimeout(() => {
+        setFalselyFlagged(false);
+        dispatch(fieldsGridActions.digField({x, y}));
+        dispatch(fieldsGridActions.toggleflaggedAsBomb({x, y}));
+      }, 2000);
+    }
+    
+  }, [gameOver, isFlaggedAsBomb, isBomb, dispatch, x, y]);
 
   const toggleFieldActionsHandler = (event) => {
     dispatch(fieldsGridActions.hideAllActionOverlays());
@@ -66,19 +78,21 @@ const MinesweeperField = ({ x, y }) => {
   }
 
   function setFlaggedHandler() {
-    setMarkedAsBomb((prevMarkedAsBomb) => !prevMarkedAsBomb);
+    dispatch(fieldsGridActions.toggleflaggedAsBomb({ x, y }));
+
     dispatch(fieldsGridActions.hideActionsOverlay({ x, y }));
   }
 
   function digFieldHandler() {
+    if(isFlaggedAsBomb) {
+      dispatch(fieldsGridActions.toggleflaggedAsBomb({x, y}));
+    }
     dispatch(fieldsGridActions.digField({ x, y }));
-    // if (isBomb) {
-    //   console.log("start game over logic here");
-    //   dispatch(fieldsGridActions.setFieldWronlgyDigged({x, y}));      
-    // } else {
-      
-    //   dispatch(fieldsGridActions.digField({ x, y }));
-    // }
+    if (isBomb) {
+      console.log("Game over");
+      dispatch(fieldsGridActions.gameOver());
+      dispatch(fieldsGridActions.digAllBombFields());
+    }
     dispatch(fieldsGridActions.hideActionsOverlay({ x, y }));
   }
 
@@ -96,7 +110,7 @@ const MinesweeperField = ({ x, y }) => {
           fontWeight: "bold",
         }}
       >
-        {(isDigged & !isBomb) && (
+        {isDigged && !isBomb && !isFlaggedAsBomb && (
           <div
             className={
               numberOfBombsInNeighborhood
@@ -107,29 +121,13 @@ const MinesweeperField = ({ x, y }) => {
             {numberOfBombsInNeighborhood}
           </div>
         )}
-        {(isDigged & isBomb) && (
-          <img
-            src={bomb}
-            alt="bomb"
-            width="20px"
-            height="20px"
-          />
+        {isDigged && isBomb && !isFlaggedAsBomb && (
+          <img src={bomb} alt="bomb" width="20px" height="20px" />
         )}
-        {markedAsBomb && (
-          <img
-            src={flag}
-            width="20px"
-            height="20px"
-            alt="flag"  
-          />
+        {isFlaggedAsBomb && (
+          <img src={flag} width="20px" height="20px" alt="flag" />
         )}
-        
       </div>
-
-
-
-
-        {/* Actions menu */}
 
       {actionsModalVisible && (
         <>

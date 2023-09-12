@@ -9,7 +9,7 @@ function generateGrid(sizeX, sizeY) {
   }
 
   // Sample bombs:
-  const numberOfBombs = 7;
+  const numberOfBombs = 5;
   const bombIndices = [];
   while (bombIndices.length < numberOfBombs) {
     const sampledX = Math.floor(Math.random() * sizeX);
@@ -31,7 +31,6 @@ function generateGrid(sizeX, sizeY) {
 
   for (let i = 0; i < sizeX; i++) {
     for (let j = 0; j < sizeY; j++) {
-      //   setFieldValue(i, j);
       fieldsGrid[i][j] = {
         ...fieldsGrid[i][j],
         numberOfBombsInNeighborhood: computeNumberOfBombsInNeighborhood(
@@ -40,9 +39,8 @@ function generateGrid(sizeX, sizeY) {
           j
         ),
         isDigged: false,
-        isCorrectlyDigged: false,
-        isWronglyDigged: false,
         actionsOverlayVisible: false,
+        isFlaggedAsBomb: false,
       };
     }
   }
@@ -65,7 +63,6 @@ function computeNumberOfBombsInNeighborhood(fieldsGrid, x, y) {
         (yCoordinate >= 0) &
         (yCoordinate < fieldsGrid[0].length)
       ) {
-        // console.log("index pair " + String(xCoordinate) + ", " + String(yCoordinate) + " exists!");
         if (fieldsGrid[xCoordinate][yCoordinate].isBomb) {
           numberOfBombsInNeighborhood++;
         }
@@ -89,24 +86,6 @@ function flattenGrid(fieldsGrid) {
   return fieldsGridFlattened;
 }
 
-// function getNeighbors(fieldsGrid, x, y) {
-//   let neighbors = [];
-//   for (const xCoordinate of [x - 1, x, x + 1]) {
-//     for (const yCoordinate of [y - 1, y, y + 1]) {
-//       if (
-//         !((xCoordinate === x) & (yCoordinate === y)) &
-//         (xCoordinate >= 0) &
-//         (xCoordinate < fieldsGrid.length) &
-//         (yCoordinate >= 0) &
-//         (yCoordinate < fieldsGrid[0].length)
-//       ) {
-//         neighbors.push({x: xCoordinate, y: yCoordinate});
-//       }
-//     }
-//     return neighbors;
-//   }
-// }
-
 function areNeighbors({ x, y }, { i, j }) {
   if ((Math.abs(x - i) <= 1) & (Math.abs(y - j) <= 1)) {
     return true;
@@ -115,35 +94,9 @@ function areNeighbors({ x, y }, { i, j }) {
   }
 }
 
-// function clearField(fieldsGrid, x, y) {
-//   fieldsGrid[x][y].isRevealed = true;
-//   console.log("x: " + String(x) + ", y: " + String(y) + " cleared");
-
-//   if (fieldsGrid[x][y].isBomb) {
-//     return console.log("game over");
-//   } 
-  
-//   // Also clear neighbors if no bomb in neighborhood:
-//   if (!fieldsGrid[x][y].numberOfBombsInNeighborhood) {
-//     for (let i = 0; i < fieldsGrid.length; i++) {
-//       for (let j = 0; j < fieldsGrid[0].length; j++) {
-//         if (areNeighbors({ x, y }, { i, j }) & !fieldsGrid[i][j].isRevealed) {
-//           clearField(fieldsGrid, i, j);
-//         }
-//       }
-//     }    
-//   }
-// }
-
 function digField(fieldsGrid, x, y) {
   fieldsGrid[x][y].isDigged = true;
-  console.log("x: " + String(x) + ", y: " + String(y) + " cleared");
-
-  // if (fieldsGrid[x][y].isBomb) {
-  //   return console.log("game over");
-  // } 
   
-  // Also clear neighbors if no bomb in neighborhood:
   if (!fieldsGrid[x][y].numberOfBombsInNeighborhood & !fieldsGrid[x][y].isBomb) {
     for (let i = 0; i < fieldsGrid.length; i++) {
       for (let j = 0; j < fieldsGrid[0].length; j++) {
