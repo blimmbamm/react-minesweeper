@@ -2,33 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import './MinesweeperField.css';
 import { useSelector, useDispatch } from "react-redux";
 import { fieldsGridActions } from "../store";
-import shovel from "../images/shovel.png";
+// import shovel from "../images/shovel.png";
 import flag from "../images/flag.png";
-import close from "../images/close.png";
+// import close from "../images/close.png";
 import bomb from "../images/bomb.png";
 
-const MinesweeperField = ({ x, y }) => {
+const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
   const fieldRef = useRef();
 
   const dispatch = useDispatch();
 
-  const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
+  const {numberOfBombsInNeighborhood, isBomb, isDigged, isFlaggedAsBomb, isHighlighted} = useSelector(state => state.fieldsGrid.fieldsGrid[x][y]);
 
-  const numberOfBombsInNeighborhood =
-    fieldsGrid[x][y].numberOfBombsInNeighborhood;
-  const isBomb = fieldsGrid[x][y].isBomb;
-  const isDigged = fieldsGrid[x][y].isDigged;
-  const isFlaggedAsBomb = fieldsGrid[x][y].isFlaggedAsBomb;
-  const gameOver = useSelector((state) => state.fieldsGrid.gameOver);
+  // const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
 
-  const actionsModalVisible = useSelector(
-    (state) => state.fieldsGrid.fieldsGrid[x][y].actionsOverlayVisible
-  );
-
-  const [actionsModalPosition, setActionisModalPosition] = useState(null);
-
+  // const numberOfBombsInNeighborhood =
+  //   fieldsGrid[x][y].numberOfBombsInNeighborhood;
+  // const isBomb = fieldsGrid[x][y].isBomb;
+  // const isDigged = fieldsGrid[x][y].isDigged;
+  // const isFlaggedAsBomb = fieldsGrid[x][y].isFlaggedAsBomb;
+  const {isOver: gameIsOver} = useSelector((state) => state.fieldsGrid.gameStatus);
+  
   let classNames;
-  if (actionsModalVisible) {
+  if (isHighlighted) {
     classNames = "field highlight";
   } else if (!isDigged) {
     classNames = `field ${(x + y) % 2 === 0 ? "dark-hidden" : "light-hidden"}`;
@@ -44,57 +40,49 @@ const MinesweeperField = ({ x, y }) => {
     classNames = "field error";
   }
 
+
+  // remove effect...
+  // only trigger this effect if game is over and if field was falsely flagged or if field is bomb and is not flagged and was not digged by user
   useEffect(() => {
-    if(gameOver && isFlaggedAsBomb && !isBomb) {
-      setFalselyFlagged(true);
+    // console.log("falsely flagged effect running...");
+    if(gameIsOver && ((isFlaggedAsBomb && !isBomb) )) {
+      setFalselyFlagged(true);      
+      
       setTimeout(() => {
-        setFalselyFlagged(false);
-        dispatch(fieldsGridActions.digField({x, y}));
-        dispatch(fieldsGridActions.toggleflaggedAsBomb({x, y}));
-      }, 2000);
+        // setFalselyFlagged(false);       
+        if(((isFlaggedAsBomb && !isBomb) )){
+        } 
+        dispatch(fieldsGridActions.digSingleField({x, y}));
+        dispatch(fieldsGridActions.setFlaggedAsbomb({x, y, isFlaggedAsBomb: false}));
+      }, 1000);
     }
-    
-  }, [gameOver, isFlaggedAsBomb, isBomb, dispatch, x, y]);
+
+
+  }, [gameIsOver, isFlaggedAsBomb, isBomb, isDigged, dispatch, x, y]);
+
+  
+
+
 
   const toggleFieldActionsHandler = (event) => {
-    dispatch(fieldsGridActions.hideAllActionOverlays());
-    dispatch(fieldsGridActions.showActionsOverlay({ x, y }));
-
-    let fieldBoundingRect;
-    if (event.target !== fieldRef.current) {
-      fieldBoundingRect = event.target.parentElement.getBoundingClientRect();
-    } else {
-      fieldBoundingRect = event.target.getBoundingClientRect();
+    
+    if(!isDigged && !gameIsOver ) {
+      let fieldBoundingRect;
+      if (event.target !== fieldRef.current) {
+        fieldBoundingRect = event.target.parentElement.getBoundingClientRect();
+      } else {
+        fieldBoundingRect = event.target.getBoundingClientRect();
+      }  
+      
+      onOpenActionsMenu(
+        x, 
+        y,
+        fieldBoundingRect.top + 25,
+        fieldBoundingRect.left - 11,
+      );
     }
-
-    setActionisModalPosition({
-      left: fieldBoundingRect.left - 11,
-      top: fieldBoundingRect.top + 25,
-    });
   };
 
-  function closeActionsModal() {
-    dispatch(fieldsGridActions.hideActionsOverlay({ x, y }));
-  }
-
-  function setFlaggedHandler() {
-    dispatch(fieldsGridActions.toggleflaggedAsBomb({ x, y }));
-
-    dispatch(fieldsGridActions.hideActionsOverlay({ x, y }));
-  }
-
-  function digFieldHandler() {
-    if(isFlaggedAsBomb) {
-      dispatch(fieldsGridActions.toggleflaggedAsBomb({x, y}));
-    }
-    dispatch(fieldsGridActions.digField({ x, y }));
-    if (isBomb) {
-      console.log("Game over");
-      dispatch(fieldsGridActions.gameOver());
-      dispatch(fieldsGridActions.digAllBombFields());
-    }
-    dispatch(fieldsGridActions.hideActionsOverlay({ x, y }));
-  }
 
   return (
     <>
@@ -127,47 +115,7 @@ const MinesweeperField = ({ x, y }) => {
         {isFlaggedAsBomb && (
           <img src={flag} width="20px" height="20px" alt="flag" />
         )}
-      </div>
-
-      {actionsModalVisible && (
-        <>
-          <div
-            style={{
-              position: "fixed",
-              zIndex: 3,
-              left: actionsModalPosition.left,
-              top: actionsModalPosition.top,
-              display: "flex",
-              backgroundColor: "whitesmoke",
-              borderRadius: "5px",
-              padding: "2px",
-              userSelect: "none",
-            }}
-          >
-            <img
-              src={shovel}
-              onClick={digFieldHandler}
-              width="16px"
-              height="16px"
-              alt="shovel"
-            />
-            <img
-              src={flag}
-              onClick={setFlaggedHandler}
-              width="16px"
-              height="16px"
-              alt="flag"
-            />
-            <img
-              src={close}
-              onClick={closeActionsModal}
-              width="16px"
-              height="16px"
-              alt="close"
-            />
-          </div>
-        </>
-      )}
+      </div>      
     </>
   );
 };

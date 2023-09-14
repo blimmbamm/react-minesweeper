@@ -1,0 +1,1 @@
+- randomly dig bombs when game is over ; OR: try to put it in the field component (in the other effect) and then add timeout of random period 

@@ -1,4 +1,4 @@
-function generateGrid(sizeX, sizeY) {
+function generateGrid(sizeX, sizeY, random) {
   // Create 2d array:
   let fieldsGrid = [];
   for (let i = 0; i < sizeX; i++) {
@@ -8,25 +8,35 @@ function generateGrid(sizeX, sizeY) {
     }
   }
 
-  // Sample bombs:
-  const numberOfBombs = 5;
-  const bombIndices = [];
-  while (bombIndices.length < numberOfBombs) {
-    const sampledX = Math.floor(Math.random() * sizeX);
-    const sampledY = Math.floor(Math.random() * sizeY);
+  if (random) {
+    // Sample bombs randomly:
+    const numberOfBombs = 5;
+    const bombIndices = [];
+    while (bombIndices.length < numberOfBombs) {
+      const sampledX = Math.floor(Math.random() * sizeX);
+      const sampledY = Math.floor(Math.random() * sizeY);
 
-    // check if (x,y) already is bomb:
-    if (!bombIndices.find(({ x, y }) => (x === sampledX) & (y === sampledY))) {
-      bombIndices.push({ x: sampledX, y: sampledY });
+      // check if (x,y) already is bomb:
+      if (
+        !bombIndices.find(({ x, y }) => (x === sampledX) & (y === sampledY))
+      ) {
+        bombIndices.push({ x: sampledX, y: sampledY });
+      }
     }
-  }
 
-  // Set isBomb property for each field
-  for (let i = 0; i < bombIndices.length; i++) {
-    fieldsGrid[bombIndices[i].x][bombIndices[i].y] = {
-      ...fieldsGrid[bombIndices[i].x][bombIndices[i].y],
-      isBomb: true,
-    };
+    // Set isBomb property for each field
+    for (let i = 0; i < bombIndices.length; i++) {
+      fieldsGrid[bombIndices[i].x][bombIndices[i].y] = {
+        ...fieldsGrid[bombIndices[i].x][bombIndices[i].y],
+        isBomb: true,
+      };
+    }
+  } else {
+    fieldsGrid[0][0].isBomb = true;
+    fieldsGrid[1][0].isBomb = true;
+    fieldsGrid[2][0].isBomb = true;
+    fieldsGrid[3][0].isBomb = true;
+    fieldsGrid[4][0].isBomb = true;
   }
 
   for (let i = 0; i < sizeX; i++) {
@@ -41,6 +51,7 @@ function generateGrid(sizeX, sizeY) {
         isDigged: false,
         actionsOverlayVisible: false,
         isFlaggedAsBomb: false,
+        isHighlighted: false,
       };
     }
   }
@@ -94,18 +105,51 @@ function areNeighbors({ x, y }, { i, j }) {
   }
 }
 
-function digField(fieldsGrid, x, y) {
+function digFieldAndRemoveFlagsRecursive(fieldsGrid, x, y) {
   fieldsGrid[x][y].isDigged = true;
-  
-  if (!fieldsGrid[x][y].numberOfBombsInNeighborhood & !fieldsGrid[x][y].isBomb) {
+  fieldsGrid[x][y].isFlaggedAsBomb = false;
+
+  if (
+    !fieldsGrid[x][y].numberOfBombsInNeighborhood & !fieldsGrid[x][y].isBomb
+  ) {
     for (let i = 0; i < fieldsGrid.length; i++) {
       for (let j = 0; j < fieldsGrid[0].length; j++) {
         if (areNeighbors({ x, y }, { i, j }) & !fieldsGrid[i][j].isDigged) {
-          digField(fieldsGrid, i, j);
+          digFieldAndRemoveFlagsRecursive(fieldsGrid, i, j);
         }
       }
-    }    
+    }
   }
 }
 
-export { generateGrid, flattenGrid, areNeighbors, digField };
+
+function allBombsFlagged(fieldsGrid) {
+  for (let i = 0; i < fieldsGrid.length; i++) {
+    for (let j = 0; j < fieldsGrid[0].length; j++) {
+      if (!fieldsGrid[i][j].isFlaggedAsBomb && fieldsGrid[i][j].isBomb) {
+        return false;
+      }
+    }
+  }  
+  return true;
+}
+
+function anyBombDigged(fieldsGrid) {
+  for (let i = 0; i < fieldsGrid.length; i++) {
+    for (let j = 0; j < fieldsGrid[0].length; j++) {
+      if (fieldsGrid[i][j].isDigged && fieldsGrid[i][j].isBomb) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+export {
+  generateGrid,
+  flattenGrid,
+  areNeighbors,
+  digFieldAndRemoveFlagsRecursive,
+  allBombsFlagged,
+  anyBombDigged
+};
