@@ -66,8 +66,7 @@ const MinesweeperGrid = () => {
 
   useEffect(() => {
     let timeoutIncrement = 0;
-
-    console.log(fieldsGrid.length);
+   
 
     // for(const i of permuteIndices(fieldsGrid.length)) {
     //   for(const j of permuteIndices(fieldsGrid[0].length)) {

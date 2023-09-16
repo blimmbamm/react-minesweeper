@@ -1,4 +1,4 @@
-function generateGrid(sizeX, sizeY, random) {
+function generateGrid(sizeX, sizeY, numberOfBombs, random) {
   // Create 2d array:
   let fieldsGrid = [];
   for (let i = 0; i < sizeX; i++) {
@@ -10,7 +10,7 @@ function generateGrid(sizeX, sizeY, random) {
 
   if (random) {
     // Sample bombs randomly:
-    const numberOfBombs = 5;
+    // const numberOfBombs = 5;
     const bombIndices = [];
     while (bombIndices.length < numberOfBombs) {
       const sampledX = Math.floor(Math.random() * sizeX);

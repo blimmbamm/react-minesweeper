@@ -8,22 +8,45 @@ import {
 } from "../util/grid-helpers";
 
 
-const config = {
-  numberOfFlagsAllowed: 5,
-};
+// const defaultGameConfig = {
+//   sizeX: 10, 
+//   sizeY: 10,
+//   numberOfBombs: 10,
+//   numberOfFlagsAllowed: 5,
+// };
+
+import gameConfigurations from "../config/gameConfig"
 
 const initialFieldsGridState = {
-  fieldsGrid: generateGrid(5, 5, false),
+  // fieldsGrid: generateGrid(gameConfigurations.default.sizeX, gameConfigurations.default.sizeY),
+  level: "default",
+  fieldsGrid: generateGrid(gameConfigurations.default.sizeX, gameConfigurations.default.sizeY, gameConfigurations.default.numberOfBombs, true),
+  numberOfBombs: gameConfigurations.default.numberOfBombs,
   numberOfFlags: 0,
   gameStatus: { isOver: false, isWon: false },
   // gameOver: false,
   // gameWon: false,
 };
 
+
 const fieldsGridSlice = createSlice({
   initialState: initialFieldsGridState,
   name: "fieldsGrid",
   reducers: {
+    initializeGrid(state, action) {
+      state.level = action.payload.level;
+      state.fieldsGrid = generateGrid(action.payload.sizeX, action.payload.sizeY, action.payload.numberOfBombs,true);
+      state.numberOfBombs = action.payload.numberOfBombs;
+      state.numberOfFlags = initialFieldsGridState.numberOfFlags;
+      state.gameStatus = initialFieldsGridState.gameStatus;
+    },
+    restart(state){
+      // state.level = state.level;
+      state.fieldsGrid = generateGrid(gameConfigurations[state.level].sizeX, gameConfigurations[state.level].sizeY, gameConfigurations[state.level].numberOfBombs, true);
+      state.numberOfBombs = gameConfigurations[state.level].numberOfBombs;
+      state.numberOfFlags = initialFieldsGridState.numberOfFlags;
+      state.gameStatus = initialFieldsGridState.gameStatus;
+    },
     digSingleField(state, action) {
       state.fieldsGrid[action.payload.x][action.payload.y].isDigged = true;
     },
@@ -48,7 +71,7 @@ const fieldsGridSlice = createSlice({
       if (
         (!state.fieldsGrid[action.payload.x][action.payload.y]
           .isFlaggedAsBomb &&
-          state.numberOfFlags < config.numberOfFlagsAllowed) ||
+          state.numberOfFlags < state.numberOfBombs) ||
         state.fieldsGrid[action.payload.x][action.payload.y].isFlaggedAsBomb
       ) {
         state.fieldsGrid[action.payload.x][action.payload.y].isFlaggedAsBomb =
@@ -92,59 +115,14 @@ const fieldsGridSlice = createSlice({
       };
     },
 
-    // gameOver(state) {
-    //   state.gameOver = true;
-    // },
-    // setGameWon(state) {
-    //   for (let i = 0; i < state.fieldsGrid.length; i++) {
-    //     for (let j = 0; j < state.fieldsGrid[0].length; j++) {
-    //       if (
-    //         state.fieldsGrid[i][j].isBomb &&
-    //         !state.fieldsGrid[i][j].isFlaggedAsBomb
-    //       ) {
-    //         state.gameWon = false;
-    //       }
-    //     }
-    //   }
-    //   state.gameWon = true;
-    // },
-    // resetGame(state) {
-    //   console.log("reset triggered");
-    //   state.fieldsGrid = generateGrid(5, 5);
-    //   state.gameOver = false;
-    //   state.gameWon = false;
-    // },
-
-    // // Actions menu reducers:
-    // showActionsOverlay(state, action) {
-    //   if (
-    //     !state.fieldsGrid[action.payload.x][action.payload.y].isDigged &
-    //     !state.gameOver
-    //   ) {
-    //     state.fieldsGrid[action.payload.x][
-    //       action.payload.y
-    //     ].actionsOverlayVisible = true;
-    //   }
-    // },
-    // hideActionsOverlay(state, action) {
-    //   state.fieldsGrid[action.payload.x][
-    //     action.payload.y
-    //   ].actionsOverlayVisible = false;
-    // },
-    // hideAllActionOverlays(state) {
-    //   for (let i = 0; i < state.fieldsGrid.length; i++) {
-    //     for (let j = 0; j < state.fieldsGrid[0].length; j++) {
-    //       state.fieldsGrid[i][j].actionsOverlayVisible = false;
-    //     }
-    //   }
-    // },
   },
 });
 
 const store = configureStore({
-  reducer: { fieldsGrid: fieldsGridSlice.reducer },
+  reducer: { fieldsGrid: fieldsGridSlice.reducer},
 });
 
 export default store;
 
 export const fieldsGridActions = fieldsGridSlice.actions;
+
