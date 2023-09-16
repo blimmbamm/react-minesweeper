@@ -5,7 +5,7 @@ import flag from "../images/flag.png";
 import close from "../images/close.png";
 import { fieldsGridActions } from "../store";
 
-const ActionsMenu = ({fieldPosition, position, onCloseActionsMenu}) => {
+const ActionsMenu = ({fieldPosition, position, onCloseActionsMenu, onResizeWindow}) => {
   const dispatch = useDispatch();
 
   // // function digFieldAndNeighbors(fieldPosition){
@@ -33,6 +33,13 @@ const ActionsMenu = ({fieldPosition, position, onCloseActionsMenu}) => {
     dispatch(fieldsGridActions.setHighlighted({...fieldPosition, isHighlighted: false}));
     onCloseActionsMenu();
   }
+
+  function resizeHandler(){
+    onResizeWindow(fieldPosition);
+    dispatch(fieldsGridActions.setHighlighted({...fieldPosition, isHighlighted: false}));
+  }
+
+  window.addEventListener("resize", resizeHandler);
 
     return <>
     <div
