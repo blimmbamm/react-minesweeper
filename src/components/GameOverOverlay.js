@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { fieldsGridActions } from "../store";
+import { fieldsGridActions, timerActions } from "../store";
 
 
-function GameOverOverlay() {
+function GameOverOverlay(props) {
   const dispatch = useDispatch();
   
     const { isWon: gameIsWon } = useSelector(
@@ -11,7 +11,10 @@ function GameOverOverlay() {
 
 
   function restartGameHandler(){
-    dispatch(fieldsGridActions.restart())
+    dispatch(fieldsGridActions.restart());
+    dispatch(timerActions.resetSecondsPlayed());
+
+    props.onRestart();
   }
 
   return (

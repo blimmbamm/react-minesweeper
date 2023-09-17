@@ -12,7 +12,7 @@ const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
 
   const dispatch = useDispatch();
 
-  const {numberOfBombsInNeighborhood, isBomb, isDigged, isFlaggedAsBomb, isHighlighted} = useSelector(state => state.fieldsGrid.fieldsGrid[x][y]);
+  const {numberOfBombsInNeighborhood, isBomb, isDigged, isFlaggedAsBomb, isHighlighted, isFalselyFlagged} = useSelector(state => state.fieldsGrid.fieldsGrid[x][y]);
 
   // const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
 
@@ -34,31 +34,47 @@ const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
     }`;
   }
 
-  const [falselyFlagged, setFalselyFlagged] = useState(false);
+  // const [falselyFlagged, setFalselyFlagged] = useState(false);
 
-  if(falselyFlagged) {
+  if(isFalselyFlagged) {
     classNames = "field error";
   }
 
 
   // remove effect...
   // only trigger this effect if game is over and if field was falsely flagged or if field is bomb and is not flagged and was not digged by user
+  // Falsely flagged effect:
   useEffect(() => {
     // console.log("falsely flagged effect running...");
     if(gameIsOver && ((isFlaggedAsBomb && !isBomb) )) {
-      setFalselyFlagged(true);      
+      dispatch(fieldsGridActions.setFalselyFlagged({x, y}));     
       
       setTimeout(() => {
-        // setFalselyFlagged(false);       
-        if(((isFlaggedAsBomb && !isBomb) )){
-        } 
         dispatch(fieldsGridActions.digSingleField({x, y}));
         dispatch(fieldsGridActions.setFlaggedAsbomb({x, y, isFlaggedAsBomb: false}));
+        
       }, 1000);
     }
-
-
   }, [gameIsOver, isFlaggedAsBomb, isBomb, isDigged, dispatch, x, y]);
+
+  // Effect: Dig bomb if not flagged and game over:
+  useEffect(() => {
+    // console.log("Remaining bomb digging effect running from field " + x + ", " + y);
+    const randomTimeout = 500 + Math.round(Math.random() * 4500);
+    if (
+      gameIsOver &&
+      isBomb &&
+      !isDigged &&
+      !isFlaggedAsBomb
+    ) {
+      setTimeout(() => {
+        dispatch(
+          fieldsGridActions.digSingleField({ x, y })
+        );
+      }, randomTimeout);      
+    }
+    
+  }, [gameIsOver, isBomb, isDigged, isFlaggedAsBomb, dispatch, x, y]);
 
   
 

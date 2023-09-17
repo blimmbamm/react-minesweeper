@@ -52,6 +52,7 @@ function generateGrid(sizeX, sizeY, numberOfBombs, random) {
         actionsOverlayVisible: false,
         isFlaggedAsBomb: false,
         isHighlighted: false,
+        isFalselyFlagged: false
       };
     }
   }

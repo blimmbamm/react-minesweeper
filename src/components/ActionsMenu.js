@@ -14,6 +14,7 @@ const ActionsMenu = ({fieldPosition, position, onCloseActionsMenu, onResizeWindo
   // }
 
   function digFieldHandler(){
+    dispatch(fieldsGridActions.setGameRunning());
     dispatch(fieldsGridActions.digFieldAndRemoveFlags(fieldPosition));
     dispatch(fieldsGridActions.updateNumberOfFlagsUsed());
     dispatch(fieldsGridActions.updateGameStatus());
@@ -22,6 +23,7 @@ const ActionsMenu = ({fieldPosition, position, onCloseActionsMenu, onResizeWindo
   }
 
   function setFlaggedHandler(){
+    dispatch(fieldsGridActions.setGameRunning());
     dispatch(fieldsGridActions.toggleFlaggedAsBomb(fieldPosition));
     dispatch(fieldsGridActions.updateNumberOfFlagsUsed());
     dispatch(fieldsGridActions.updateGameStatus());
