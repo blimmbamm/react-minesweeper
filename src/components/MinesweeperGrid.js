@@ -2,116 +2,42 @@ import MinesweeperField from "./MinesweeperField";
 import { flattenGrid } from "../util/grid-helpers";
 
 import { useDispatch, useSelector } from "react-redux";
-import {  useState } from "react";
-import { fieldsGridActions } from "../store";
+import { useState } from "react";
+import { gameActions, uiActions } from "../store";
 import ActionsMenu from "./ActionsMenu";
 
-const MinesweeperGrid = (props) => {
+
+const MinesweeperGrid = () => {
   const dispatch = useDispatch();
-  const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
-  // const { isOver: gameIsOver } = useSelector(
-  //   (state) => state.fieldsGrid.gameStatus
-  // );
-
+  const fieldsGrid = useSelector((state) => state.game.fieldsGrid);
+  
   const flattenedFieldsGrid = flattenGrid(fieldsGrid);
-
-  const [actionsMenuVisible, setActionsMenuVisible] = useState(false);
+  
+  const actionsMenuVisible = useSelector(state => state.ui.actionsMenuVisible);
   const [actionsMenuPosition, setActionsMenuPosition] = useState(null);
   const [actionsMenuFieldPosition, setActionsMenuFieldPosition] =
     useState(null);
 
-  function openActionsMenuHandler(x, y, top, left) {
-    setActionsMenuVisible(true);
-    setActionsMenuPosition({ top, left });
+  function openActionsMenuHandler(x, y, top, left, width) {
+    dispatch(uiActions.setActionsMenuVisible(true));
+    setActionsMenuPosition({ top, left, width });
     setActionsMenuFieldPosition({ x, y });
-    dispatch(fieldsGridActions.setHighlighted({ x, y, isHighlighted: true }));
+    dispatch(gameActions.setHighlighted({ x, y, isHighlighted: true }));
   }
   
   function resizeWindowHandler(){
-    setActionsMenuVisible(false);    
+    dispatch(uiActions.setActionsMenuVisible(false));
   }
 
   function closeActionsMenuHandler() {
-    setActionsMenuVisible(false);
+    dispatch(uiActions.setActionsMenuVisible(false));
   }
-
-  // function permuteIndices(n) {
-  //   const indices = [...Array(n).keys()];
-  //   let randomIndices = [];
-  //   for (let i = 0; i < n; i++) {
-  //     randomIndices.push(
-  //       indices.splice(Math.floor(Math.random() * indices.length), 1)
-  //     );
-  //   }
-  //   return randomIndices;
-  // }
-
-  // console.log(permuteIndices(10));
-
-  // const applyFor2dArray = useCallback(function applyFor2dArray(array, callback, randomly) {
-  //   if (randomly) {
-  //     for (const i of permuteIndices(array.length)) {
-  //       for (const j of permuteIndices(array[0].length)) {
-  //         callback(array[i][j]);
-  //       }
-  //     }
-  //   } else {
-  //     for (const nestedArray of array) {
-  //       for (const arrayElement of nestedArray) {
-  //         callback(arrayElement);
-  //       }
-  //     }
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log("Game over effect running");
-  //   let timeoutIncrement = 0;
-   
-
-  //   // for(const i of permuteIndices(fieldsGrid.length)) {
-  //   //   for(const j of permuteIndices(fieldsGrid[0].length)) {
-  //   //     // if game is over and bomb was not flagged or digged
-  //   //     if(gameIsOver && fieldsGrid[i][j].isBomb && !fieldsGrid[i][j].isDigged && !fieldsGrid[i][j].isFlaggedAsBomb ) {
-  //   //       setTimeout(() => {
-  //   //         dispatch(fieldsGridActions.digSingleField({x: i, y: j}));
-  //   //       }, 500+timeoutIncrement);
-  //   //       timeoutIncrement+=1000;
-  //   //     }
-  //   //   }
-  //   // }
-
-  //   applyFor2dArray(fieldsGrid, (field) => {
-  //     if (
-  //       gameIsOver &&
-  //       field.isBomb &&
-  //       !field.isDigged &&
-  //       !field.isFlaggedAsBomb
-  //     ) {
-  //       setTimeout(() => {
-  //         dispatch(
-  //           fieldsGridActions.digSingleField({ x: field.x, y: field.y })
-  //         );
-  //       }, 500 + timeoutIncrement);
-  //       timeoutIncrement += 1000;
-  //     }
-  //   }, true);
-
-  //   // if(gameIsOver) {
-  //   //   setTimeout(() => {
-  //   //     props.onReadyForRestart();
-  //   //   }, timeoutIncrement + 1000);
-  //   // }
-
-  // });
-
+  
   return (
-    <div
+    <div className="minesweeper-grid"
       style={{
-        display: "grid",
         gridTemplateColumns: `repeat(${fieldsGrid.length}, 1fr)`,
-        width: "fit-content",
-        margin: "auto",
+        
       }}
     >
       {flattenedFieldsGrid.map(({ x, y }, index) => (
@@ -120,6 +46,7 @@ const MinesweeperGrid = (props) => {
           x={x}
           y={y}
           onOpenActionsMenu={openActionsMenuHandler}
+          width={100 / fieldsGrid.length}
         />
       ))}
 

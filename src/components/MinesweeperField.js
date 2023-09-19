@@ -1,28 +1,26 @@
-import { useEffect, useRef, useState } from "react";
-import './MinesweeperField.css';
+import { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fieldsGridActions } from "../store";
-// import shovel from "../images/shovel.png";
+import { gameActions } from "../store";
 import flag from "../images/flag.png";
-// import close from "../images/close.png";
 import bomb from "../images/bomb.png";
+import { numberImages } from "../images/numbers";
 
 const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
   const fieldRef = useRef();
 
   const dispatch = useDispatch();
 
-  const {numberOfBombsInNeighborhood, isBomb, isDigged, isFlaggedAsBomb, isHighlighted, isFalselyFlagged} = useSelector(state => state.fieldsGrid.fieldsGrid[x][y]);
+  const {
+    numberOfBombsInNeighborhood,
+    isBomb,
+    isDigged,
+    isFlaggedAsBomb,
+    isHighlighted,
+    isFalselyFlagged,
+  } = useSelector((state) => state.game.fieldsGrid[x][y]);
 
-  // const fieldsGrid = useSelector((state) => state.fieldsGrid.fieldsGrid);
+  const { isOver: gameIsOver } = useSelector((state) => state.game.gameStatus);
 
-  // const numberOfBombsInNeighborhood =
-  //   fieldsGrid[x][y].numberOfBombsInNeighborhood;
-  // const isBomb = fieldsGrid[x][y].isBomb;
-  // const isDigged = fieldsGrid[x][y].isDigged;
-  // const isFlaggedAsBomb = fieldsGrid[x][y].isFlaggedAsBomb;
-  const {isOver: gameIsOver} = useSelector((state) => state.fieldsGrid.gameStatus);
-  
   let classNames;
   if (isHighlighted) {
     classNames = "field highlight";
@@ -34,71 +32,52 @@ const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
     }`;
   }
 
-  // const [falselyFlagged, setFalselyFlagged] = useState(false);
-
-  if(isFalselyFlagged) {
+  if (isFalselyFlagged) {
     classNames = "field error";
   }
 
-
-  // remove effect...
-  // only trigger this effect if game is over and if field was falsely flagged or if field is bomb and is not flagged and was not digged by user
-  // Falsely flagged effect:
+  // Two effects:
   useEffect(() => {
-    // console.log("falsely flagged effect running...");
-    if(gameIsOver && ((isFlaggedAsBomb && !isBomb) )) {
-      dispatch(fieldsGridActions.setFalselyFlagged({x, y}));     
-      
+    // First effect: falsely as bomb flagged fields are hightlighted:
+    if (gameIsOver && isFlaggedAsBomb && !isBomb) {
+      dispatch(gameActions.setFalselyFlagged({ x, y }));
+
       setTimeout(() => {
-        dispatch(fieldsGridActions.digSingleField({x, y}));
-        dispatch(fieldsGridActions.setFlaggedAsbomb({x, y, isFlaggedAsBomb: false}));
-        
+        dispatch(gameActions.digSingleField({ x, y }));
+        dispatch(
+          gameActions.setFlaggedAsbomb({ x, y, isFlaggedAsBomb: false })
+        );
       }, 1000);
+    }
+
+    // Second effect: Dig bomb if it was not flagged and game is over:
+    if (gameIsOver && isBomb && !isDigged && !isFlaggedAsBomb) {
+      const randomTimeout = 500 + Math.round(Math.random() * 4500);
+      setTimeout(() => {
+        dispatch(gameActions.digSingleField({ x, y }));
+      }, randomTimeout);
     }
   }, [gameIsOver, isFlaggedAsBomb, isBomb, isDigged, dispatch, x, y]);
 
-  // Effect: Dig bomb if not flagged and game over:
-  useEffect(() => {
-    // console.log("Remaining bomb digging effect running from field " + x + ", " + y);
-    const randomTimeout = 500 + Math.round(Math.random() * 4500);
-    if (
-      gameIsOver &&
-      isBomb &&
-      !isDigged &&
-      !isFlaggedAsBomb
-    ) {
-      setTimeout(() => {
-        dispatch(
-          fieldsGridActions.digSingleField({ x, y })
-        );
-      }, randomTimeout);      
-    }
-    
-  }, [gameIsOver, isBomb, isDigged, isFlaggedAsBomb, dispatch, x, y]);
-
-  
-
-
-
   const toggleFieldActionsHandler = (event) => {
-    
-    if(!isDigged && !gameIsOver ) {
+    if (!isDigged && !gameIsOver) {
       let fieldBoundingRect;
       if (event.target !== fieldRef.current) {
         fieldBoundingRect = event.target.parentElement.getBoundingClientRect();
       } else {
         fieldBoundingRect = event.target.getBoundingClientRect();
-      }  
-      
+      }
+      console.log(fieldBoundingRect);
+
       onOpenActionsMenu(
-        x, 
+        x,
         y,
-        fieldBoundingRect.top + 25,
-        fieldBoundingRect.left - 11,
+        fieldBoundingRect.top + fieldBoundingRect.height * 0.75,
+        fieldBoundingRect.left - 0.25 * fieldBoundingRect.width,
+        fieldBoundingRect.width * 1.5
       );
     }
   };
-
 
   return (
     <>
@@ -106,32 +85,21 @@ const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
         ref={fieldRef}
         className={classNames}
         onClick={toggleFieldActionsHandler}
-        style={{
-          userSelect: "none",
-          alignItems: "center",
-          display: "flex",
-          justifyContent: "center",
-          fontWeight: "bold",
-        }}
       >
-        {isDigged && !isBomb && !isFlaggedAsBomb && (
-          <div
-            className={
-              numberOfBombsInNeighborhood
-                ? `text-color-${numberOfBombsInNeighborhood}`
-                : ""
-            }
-          >
-            {numberOfBombsInNeighborhood}
-          </div>
-        )}
+        {isDigged &&
+          !isBomb &&
+          !isFlaggedAsBomb &&
+          numberOfBombsInNeighborhood && (
+            <img
+              src={numberImages[`number${numberOfBombsInNeighborhood}`]}
+              alt="number of bombs"
+            />
+          )}
         {isDigged && isBomb && !isFlaggedAsBomb && (
-          <img src={bomb} alt="bomb" width="20px" height="20px" />
+          <img src={bomb} alt="bomb" />
         )}
-        {isFlaggedAsBomb && (
-          <img src={flag} width="20px" height="20px" alt="flag" />
-        )}
-      </div>      
+        {isFlaggedAsBomb && <img src={flag} alt="flag" />}
+      </div>
     </>
   );
 };

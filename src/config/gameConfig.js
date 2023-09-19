@@ -2,20 +2,20 @@ const gameConfigurations = {
   easy: {
     // id: "easy",
     sizeX: 10,
-    sizeY: 10,
+    sizeY: 8,
     numberOfBombs: 10
   },
   medium: {
     // id: "medium",
-    sizeX: 20,
-    sizeY: 20,
-    numberOfBombs: 20
+    sizeX: 18,
+    sizeY: 14,
+    numberOfBombs: 40
   },
   hard: {
     // id: "hard",
-    sizeX: 30,
-    sizeY: 30,
-    numberOfBombs: 30
+    sizeX: 24,
+    sizeY: 20,
+    numberOfBombs: 100
   }
 };
 

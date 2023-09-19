@@ -1,39 +1,33 @@
 import { useDispatch, useSelector } from "react-redux";
 import flag from "../images/flag.png";
-import { fieldsGridActions, timerActions } from "../store";
+import { gameActions, uiActions } from "../store";
 import gameConfigurations from "../config/gameConfig";
 import Timer from "./Timer";
+import { useContext } from "react";
+import { TimerContext } from "../App";
 
 const MenuBar = () => {
+  const { resetCounter } = useContext(TimerContext);
   const dispatch = useDispatch();
 
   const { numberOfBombs, numberOfFlags } = useSelector(
-    (state) => state.fieldsGrid
+    (state) => state.game
   );
+
   function changeGameLevelHandler(event) {
     dispatch(
-      fieldsGridActions.initializeGrid({
+      gameActions.initializeGrid({
         ...gameConfigurations[event.target.value],
         level: event.target.value,
       })
     );
-    dispatch(timerActions.resetSecondsPlayed());
+    dispatch(uiActions.setActionsMenuVisible(false));
+    resetCounter();
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        width: "300px",
-        margin: "auto",
-        padding: "5px",
-        boxSizing: "border-box",
-        backgroundColor: "green",
-      }}
-    >
+    <div className="menu-bar">
       <select
-        style={{ margin: "5px" }}
         onChange={changeGameLevelHandler}
         defaultValue="medium"
       >
@@ -41,9 +35,9 @@ const MenuBar = () => {
         <option value="medium">Medium</option>
         <option value="hard">Hard</option>
       </select>
-      <div style={{ display: "flex" }}>
-        <img src={flag} alt="flag" style={{ width: "30px" }} />
-        <div>{numberOfBombs - numberOfFlags}</div>
+      <div className="flex align-center">
+        <img src={flag} alt="flag" />
+        {numberOfBombs - numberOfFlags}
       </div>
       <Timer />
     </div>

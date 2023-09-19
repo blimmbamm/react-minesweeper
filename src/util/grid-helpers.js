@@ -10,7 +10,6 @@ function generateGrid(sizeX, sizeY, numberOfBombs, random) {
 
   if (random) {
     // Sample bombs randomly:
-    // const numberOfBombs = 5;
     const bombIndices = [];
     while (bombIndices.length < numberOfBombs) {
       const sampledX = Math.floor(Math.random() * sizeX);

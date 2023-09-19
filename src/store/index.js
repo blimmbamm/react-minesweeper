@@ -4,34 +4,27 @@ import {
   generateGrid,
   digFieldAndRemoveFlagsRecursive,
   anyBombDigged,
-  allBombsFlagged
+  allBombsFlagged,
 } from "../util/grid-helpers";
 
+import gameConfigurations from "../config/gameConfig";
 
-// const defaultGameConfig = {
-//   sizeX: 10, 
-//   sizeY: 10,
-//   numberOfBombs: 10,
-//   numberOfFlagsAllowed: 5,
-// };
-
-import gameConfigurations from "../config/gameConfig"
-
-const initialFieldsGridState = {
-  // fieldsGrid: generateGrid(gameConfigurations.default.sizeX, gameConfigurations.default.sizeY),
+const initialGameState = {
   level: "default",
-  fieldsGrid: generateGrid(gameConfigurations.default.sizeX, gameConfigurations.default.sizeY, gameConfigurations.default.numberOfBombs, true),
+  fieldsGrid: generateGrid(
+    gameConfigurations.default.sizeX,
+    gameConfigurations.default.sizeY,
+    gameConfigurations.default.numberOfBombs,
+    true
+  ),
   numberOfBombs: gameConfigurations.default.numberOfBombs,
   numberOfFlags: 0,
   gameStatus: { isRunning: false, isOver: false, isWon: false },
-  // gameOver: false,
-  // gameWon: false,
 };
 
-
-const fieldsGridSlice = createSlice({
-  initialState: initialFieldsGridState,
-  name: "fieldsGrid",
+const gameSlice = createSlice({
+  initialState: initialGameState,
+  name: "game",
   reducers: {
     setGameRunning(state) {
       console.log("Game was set running");
@@ -39,24 +32,31 @@ const fieldsGridSlice = createSlice({
     },
     initializeGrid(state, action) {
       state.level = action.payload.level;
-      state.fieldsGrid = generateGrid(action.payload.sizeX, action.payload.sizeY, action.payload.numberOfBombs,true);
+      state.fieldsGrid = generateGrid(
+        action.payload.sizeX,
+        action.payload.sizeY,
+        action.payload.numberOfBombs,
+        true
+      );
       state.numberOfBombs = action.payload.numberOfBombs;
-      state.numberOfFlags = initialFieldsGridState.numberOfFlags;
-      state.gameStatus = initialFieldsGridState.gameStatus;
+      state.numberOfFlags = initialGameState.numberOfFlags;
+      state.gameStatus = initialGameState.gameStatus;
     },
-    restart(state){
-      // state.level = state.level;
-      state.fieldsGrid = generateGrid(gameConfigurations[state.level].sizeX, gameConfigurations[state.level].sizeY, gameConfigurations[state.level].numberOfBombs, true);
+    restart(state) {
+      state.fieldsGrid = generateGrid(
+        gameConfigurations[state.level].sizeX,
+        gameConfigurations[state.level].sizeY,
+        gameConfigurations[state.level].numberOfBombs,
+        true
+      );
       state.numberOfBombs = gameConfigurations[state.level].numberOfBombs;
-      state.numberOfFlags = initialFieldsGridState.numberOfFlags;
-      state.gameStatus = initialFieldsGridState.gameStatus;
+      state.numberOfFlags = initialGameState.numberOfFlags;
+      state.gameStatus = initialGameState.gameStatus;
     },
     digSingleField(state, action) {
-      // state.gameStatus.isRunning = true;
       state.fieldsGrid[action.payload.x][action.payload.y].isDigged = true;
     },
     digFieldAndRemoveFlags(state, action) {
-      console.log("field digging triggered");
       digFieldAndRemoveFlagsRecursive(
         state.fieldsGrid,
         action.payload.x,
@@ -110,7 +110,9 @@ const fieldsGridSlice = createSlice({
       }
     },
     setFalselyFlagged(state, action) {
-      state.fieldsGrid[action.payload.x][action.payload.y].isFalselyFlagged = true;
+      state.fieldsGrid[action.payload.x][
+        action.payload.y
+      ].isFalselyFlagged = true;
     },
 
     // game status reducuers:
@@ -123,28 +125,24 @@ const fieldsGridSlice = createSlice({
         isRunning: !bombDigged && !gameWon,
       };
     },
-
   },
 });
 
-const timerSlice = createSlice({
-  initialState: {secondsPlayed: 0},
-  name: "timer",
+const uiSlice = createSlice({
+  initialState: { actionsMenuVisible: false },
+  name: "ui",
   reducers: {
-    increaseSecondsPlayed(state){
-      state.secondsPlayed++;
+    setActionsMenuVisible(state, action) {
+      state.actionsMenuVisible = action.payload;
     },
-    resetSecondsPlayed(state) {
-      state.secondsPlayed = 0;
-    }
-  }
-})
+  },
+});
 
 const store = configureStore({
-  reducer: { fieldsGrid: fieldsGridSlice.reducer, timer: timerSlice.reducer},
+  reducer: { game: gameSlice.reducer, ui: uiSlice.reducer },
 });
 
 export default store;
 
-export const fieldsGridActions = fieldsGridSlice.actions;
-export const timerActions = timerSlice.actions;
+export const gameActions = gameSlice.actions;
+export const uiActions = uiSlice.actions;
