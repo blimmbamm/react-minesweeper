@@ -73,8 +73,8 @@ const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
         x,
         y,
         fieldBoundingRect.top + fieldBoundingRect.height * 0.75,
-        fieldBoundingRect.left - 0.25 * fieldBoundingRect.width,
-        fieldBoundingRect.width * 1.5
+        fieldBoundingRect.left - 1.5 * fieldBoundingRect.width,
+        fieldBoundingRect.width * 4
       );
     }
   };
