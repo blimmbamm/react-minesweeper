@@ -14,21 +14,27 @@ function App() {
   const [counter, setCounter] = useState(0);
   const [readyForRestart, setReadyForRestart] = useState(false);
 
-  const { isOver: gameIsOver, isRunning: gameIsRunning } = useSelector(
-    (state) => state.game.gameStatus
-  );
+  const {
+    isOver: gameIsOver,
+    isRunning: gameIsRunning,
+    isWon: gameIsWon,
+  } = useSelector((state) => state.game.gameStatus);
 
-  // If game is over, wait until the other game over effects are finished before GameOverOverlay component is rendered:
+  /* If game is over (lost), wait until the other 
+    game over effects are finished before 
+    GameOverOverlay component is rendered: */
   useEffect(() => {
     if (gameIsOver) {
+      const timeoutLength = gameIsWon ? 500 : 5500;
+
       const timer = setTimeout(() => {
         setReadyForRestart(true);
-      }, 5500);
+      }, timeoutLength);
       return () => {
         clearTimeout(timer);
       };
     }
-  }, [gameIsOver]);
+  }, [gameIsOver, gameIsWon]);
 
   // Start and stop timer:
   useEffect(() => {
@@ -50,7 +56,6 @@ function App() {
   function restartHandler() {
     setReadyForRestart(false);
   }
-
 
   return (
     <TimerContext.Provider

@@ -67,7 +67,6 @@ const MinesweeperField = ({ x, y, onOpenActionsMenu }) => {
       } else {
         fieldBoundingRect = event.target.getBoundingClientRect();
       }
-      console.log(fieldBoundingRect);
 
       onOpenActionsMenu(
         x,

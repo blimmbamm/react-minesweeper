@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import shovel from "../images/shovel.png";
 import flag from "../images/flag.png";
@@ -7,9 +7,15 @@ import { gameActions } from "../store";
 
 const ActionsMenu = ({fieldPosition, position, onCloseActionsMenu, onResizeWindow}) => {
 
+  const { isRunning: gameIsRunning } = useSelector((state) => state.game.gameStatus);
+
   const dispatch = useDispatch();
 
   function digFieldHandler(){
+    // if game is not running, initialize bombs and related props of field
+    if(!gameIsRunning) {
+      dispatch(gameActions.initializeBombs(fieldPosition));
+    }
     dispatch(gameActions.setGameRunning());
     dispatch(gameActions.digFieldAndRemoveFlags(fieldPosition));
     dispatch(gameActions.updateNumberOfFlagsUsed());

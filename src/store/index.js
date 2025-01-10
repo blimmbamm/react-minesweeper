@@ -2,6 +2,7 @@ import { createSlice, configureStore } from "@reduxjs/toolkit";
 
 import {
   generateGrid,
+  generateBombs,
   digFieldAndRemoveFlagsRecursive,
   anyBombDigged,
   allBombsFlagged,
@@ -14,8 +15,8 @@ const initialGameState = {
   fieldsGrid: generateGrid(
     gameConfigurations.default.sizeX,
     gameConfigurations.default.sizeY,
-    gameConfigurations.default.numberOfBombs,
-    true
+    // gameConfigurations.default.numberOfBombs
+    // true // this was for disabling randomly generated bombs
   ),
   numberOfBombs: gameConfigurations.default.numberOfBombs,
   numberOfFlags: 0,
@@ -27,7 +28,6 @@ const gameSlice = createSlice({
   name: "game",
   reducers: {
     setGameRunning(state) {
-      console.log("Game was set running");
       state.gameStatus.isRunning = true;
     },
     initializeGrid(state, action) {
@@ -35,19 +35,28 @@ const gameSlice = createSlice({
       state.fieldsGrid = generateGrid(
         action.payload.sizeX,
         action.payload.sizeY,
-        action.payload.numberOfBombs,
-        true
+        // action.payload.numberOfBombs
+        // true // this is some debugging artifact
       );
       state.numberOfBombs = action.payload.numberOfBombs;
       state.numberOfFlags = initialGameState.numberOfFlags;
       state.gameStatus = initialGameState.gameStatus;
     },
+    initializeBombs(state, action) {
+      state.fieldsGrid = generateBombs(
+        state.fieldsGrid,
+        action.payload,
+        gameConfigurations[state.level].sizeX,
+        gameConfigurations[state.level].sizeY,
+        gameConfigurations[state.level].numberOfBombs
+      );
+    },
     restart(state) {
       state.fieldsGrid = generateGrid(
         gameConfigurations[state.level].sizeX,
         gameConfigurations[state.level].sizeY,
-        gameConfigurations[state.level].numberOfBombs,
-        true
+        // gameConfigurations[state.level].numberOfBombs
+        // true
       );
       state.numberOfBombs = gameConfigurations[state.level].numberOfBombs;
       state.numberOfFlags = initialGameState.numberOfFlags;
